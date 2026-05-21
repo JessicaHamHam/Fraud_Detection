@@ -23,3 +23,25 @@ $$Risk\ Score = \frac{1}{1 + e^{-k(v - v_{limit})}}$$
 - $v = \frac{\text{Distance (miles)}}{\text{Time Difference (hours)}}$
 - $v_{limit} = 550\ mph$: The benchmark cruising speed of a commercial jet. At this exact speed, the risk score is exactly `0.5`.
 - $k = 0.015$: The sensitivity coefficient that controls the steepness of the risk curve, smoothly accelerating the risk score toward `1.0` as velocity surpasses the limit.
+
+### 2. High Velocity
+This feature detects sudden spikes in a user's transaction frequency within a single day. A rapid increase in transaction volume often signals automated bot attacks, card testing, or rapid-fire fraudulent spending before the card is blocked.
+
+#### Key Implementation Details:
+- **User-Specific Profiling (Z-Score):** Instead of using a static threshold for transaction counts, the pipeline calculates a personalized **Z-Score** for each user. This measures how many standard deviations the current day's transaction count deviates from the user's historical average.
+- **Exception Handling:** To prevent `ZeroDivisionError` or extreme mathematical anomalies for users with static behaviors (where standard deviation is 0 or NaN), the pipeline replaces or fills the standard deviation with a baseline floor value of `0.5`.
+- **Domain-Specific Risk Adjustments:** The mapped score undergoes contextual weighting based on the `Merchant_Category` to account for industry-specific fraud profiles:
+  - **Electronics (+0.15 Boost):** High-target categories for immediate liquidation are penalized with a risk score boost (capped at `1.0`).
+  - **Travel / Restaurants (-0.05 Mitigation):** Common daily spending categories receive a slight risk reduction (floored at `0.0`) to avoid unnecessary customer friction.
+
+#### Mathematical Formula & Mapping:
+If $\text{Daily\_Transaction\_Count} > \mu$, the Z-Score is calculated as:
+
+$$z = \frac{\text{Daily\_Transaction\_Count} - \mu}{\sigma}$$
+
+The Z-Score is then bounded and mapped to a dynamic risk increment between `0.0` and `1.0` using an exponential decay function:
+
+$$Risk\ Score = 1 - e^{-0.5 \times z}$$
+
+- $\mu$: The user's historical mean of daily transaction counts (`avg_daily_count`).
+- $\sigma$: The user's standard deviation of daily transaction counts (`std_daily_count`), safely adjusted to prevent division by zero.
