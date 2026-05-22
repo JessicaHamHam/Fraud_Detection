@@ -35,7 +35,7 @@ This feature detects sudden spikes in a user's transaction frequency within a si
   - **Travel / Restaurants (-0.05 Mitigation):** Common daily spending categories receive a slight risk reduction (floored at `0.0`) to avoid unnecessary customer friction.
 
 #### Mathematical Formula & Mapping:
-If $Daily_Transaction_Count > avg_daily_count$ ($\mu$), the Z-Score is calculated as:
+If 'Daily_Transaction_Count' > 'avg_daily_count' ($\mu$), the Z-Score is calculated as:
 
 $$z = \frac{\text{'Daily\_Transaction\_Count'} - \mu}{\sigma}$$
 
