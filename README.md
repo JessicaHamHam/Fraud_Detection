@@ -88,4 +88,4 @@ This feature targets Account Takeover (ATO) scenarios where an unauthorized atta
   - **Indicator C (Network & Location Anomaly):** Evaluates spatial and network shifts based on IP flagging and distance explosion:
     - An anomaly is flagged if `IP_Address_Flag == 1` or if the current transaction distance is **3 times larger** than the user's `avg_distance`.
     - **Single Anomaly** (IP *or* Distance): $\rightarrow$ **+0.20 Risk**
-    - **Compound Anomaly** (IP *and* Distance): $\rightarrow$ **+0.50 Risk** (Highly critical indicator of geo-spoofing or proxy usage).
+    - **Compound Anomaly** (IP *and* Distance): $\rightarrow$ **+0.50 Risk** 
