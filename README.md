@@ -37,7 +37,7 @@ This feature detects sudden spikes in a user's transaction frequency within a si
 #### Mathematical Formula & Mapping:
 If `Daily_Transaction_Count` > `avg_daily_count` ($\mu$), the Z-Score is calculated as:
 
-$$z = \frac{\text{'Daily\_Transaction\_Count'} - \mu}{\sigma}$$
+$$z = \frac{\text{'Daily Transaction Count'} - \mu}{\sigma}$$
 
 The Z-Score is then bounded and mapped to a dynamic risk increment between `0.0` and `1.0` using an exponential decay function:
 
