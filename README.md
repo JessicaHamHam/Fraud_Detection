@@ -56,10 +56,15 @@ This feature captures a common fraud pattern known as "Card Testing" or "Credit 
 - **Contextual Category Multiplier:** If the targeted high-amount transaction occurs in high-liquidation sectors like **Electronics** or **Travel**, the final risk increment receives a **30% compounding multiplier ($\times 1.3$)**, capped at a maximum value of `1.0`.
 
 #### Mathematical Formula:
+First, the pipeline calculates the scale of the price gap ($Ratio$) between the current and previous transaction amounts:
+
+$$Ratio = \frac{Amount_{current}}{Amount_{prev}}$$
+
+- $A_{current}$: Current transaction amount (`Transaction_Amount`)
+- $A_{prev}$: Previous transaction amount (`prev_amount`)
 If $Ratio \ge 10.0$ within 1 hour, the base risk score is mapped via a Sigmoid function and then decayed by time:
 
 $$Base\ Risk = \frac{1}{1 + e^{-k_{amount}(Ratio - Ratio_{limit})}}$$
-
 $$Risk\ Score_{final} = Base\ Risk \times e^{-3.0 \times \Delta t}$$
 
 - $Ratio$: The scale of the price gap ($\text{`Transaction Amount`} / \text{`prev amount`}$).
