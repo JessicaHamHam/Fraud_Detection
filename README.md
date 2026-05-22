@@ -34,7 +34,7 @@ This feature detects sudden spikes in a user's transaction frequency within a si
   - **Electronics (+0.15 Boost):** High-target categories for immediate liquidation are penalized with a risk score boost (capped at `1.0`).
   - **Travel / Restaurants (-0.05 Mitigation):** Common daily spending categories receive a slight risk reduction (floored at `0.0`) to avoid unnecessary customer friction.
 
-#### Mathematical Formula & Mapping:
+#### Mathematical Formula:
 If `Daily_Transaction_Count` > `avg_daily_count` ($\mu$), the Z-Score is calculated as:
 
 $$z = \frac{\text{Daily Transaction Count} - \mu}{\sigma}$$
@@ -45,3 +45,24 @@ $$Risk\ Score = 1 - e^{-0.5 \times z}$$
 
 - $\mu$: The user's historical mean of daily transaction counts (`avg_daily_count`).
 - $\sigma$: The user's standard deviation of daily transaction counts (`std_daily_count`), safely adjusted to prevent division by zero.
+
+### 3. Small-to-Large Transaction Blast (Card Testing Detection)
+This feature captures a highly suspicious fraud pattern known as "Card Testing" or "Credit Blasting." Fraudsters often initiate a low-suspicion transaction to verify if a stolen card is active. Once confirmed, they immediately execute a massive transaction to drain the card's limit before it gets blocked.
+
+#### Key Implementation Details:
+- **Amount Explosion Ratio:** Tracks the multiplier gap between the current transaction amount and the immediately preceding one. The pipeline filters out micro-fluctuations and only triggers if the current amount is **at least 10 times larger** ($Ratio \ge 10.0$) than the previous one.
+- **Strict Time Bounding:** This logic only monitors rapid-fire sequences occurring **within a strict 1-hour window** ($Time\ Diff < 1.0\ hour$). Any transactions spaced further apart are safely ignored to eliminate normal organic spending behaviors.
+- **Exponential Time Decay:** Incorporates a time-decay factor. The shorter the time gap between the small test and the large blast, the more urgent and severe the risk factor becomes.
+- **Contextual Category Multiplier:** If the targeted high-amount transaction occurs in high-liquidation sectors like **Electronics** or **Travel**, the final risk increment receives a **30% compounding multiplier ($\times 1.3$)**, capped at a maximum value of `1.0`.
+
+#### Mathematical Formula & Mapping:
+If $Ratio \ge 10.0$ within 1 hour, the base risk score is mapped via a Sigmoid function and then decayed by time:
+
+$$Base\ Risk = \frac{1}{1 + e^{-k_{amount}(Ratio - Ratio_{limit})}}$$
+
+$$Risk\ Score_{final} = Base\ Risk \times e^{-3.0 \times \Delta t}$$
+
+- $Ratio$: The scale of the price gap ($\text{Transaction\_Amount} / \text{prev\_amount}$).
+- $Ratio_{limit} = 50.0$: The midpoint threshold where the base risk curve reaches exactly `0.5` (a 50x increase in transaction size).
+- $k_{amount} = 0.05$: The slope sensitivity adjusting how aggressively the risk scales.
+- $\Delta t$: The time difference in hours (`time_diff_hours`).
