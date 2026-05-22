@@ -81,8 +81,8 @@ This feature targets Account Takeover (ATO) scenarios where an unauthorized atta
   - `usual_device`: The user's most frequently used device type (mode).
   - `usual_auth`: The user's most frequently used authentication method (mode).
   - `avg_distance`: The user's historical average transaction distance (mean).
-- **The Suspicion Trigger:** The scoring logic is strictly conditional. It only triggers if a user has **more than 3 failed transactions within the last 7 days** (`Failed_Transaction_Count_7d > 3`), filtering out ordinary, low-risk user errors.
-- **Multi-Factor Heuristic Risk Scoring:** Once triggered, risk increments are systematically compounded based on the following indicators:
+- **The Suspicion Trigger:** The scoring logic triggers if a user has **more than 3 failed transactions within the last 7 days** (`Failed_Transaction_Count_7d > 3`).
+- **Multi-Factor Risk Scoring:** Once triggered, risk increments are systematically compounded based on the following indicators:
   - **Indicator A (Authentication Change):** Current authentication method differs from `usual_auth` $\rightarrow$ **+0.20 Risk**
   - **Indicator B (Device Switch):** Current device type differs from `usual_device` $\rightarrow$ **+0.20 Risk**
   - **Indicator C (Network & Location Anomaly):** Evaluates spatial and network shifts based on IP flagging and distance explosion:
