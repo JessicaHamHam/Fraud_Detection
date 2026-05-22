@@ -46,7 +46,7 @@ $$Risk\ Score = 1 - e^{-0.5 \times z}$$
 - $\mu$: The user's historical mean of daily transaction counts (`avg_daily_count`).
 - $\sigma$: The user's standard deviation of daily transaction counts (`std_daily_count`), safely adjusted to prevent division by zero.
 
-### 3. Small-to-Large Transaction Blast (Card Testing Detection)
+### 3. Small-to-Large Transaction Blast
 This feature captures a common fraud pattern known as "Card Testing" or "Credit Blasting." Fraudsters often initiate a low-value transaction to verify if a stolen card is active. Once confirmed, they immediately execute a massive transaction to drain the card's limit before it gets blocked.
 
 #### Key Implementation Details:
@@ -72,3 +72,20 @@ $$Risk\ Score_{final} = Base\ Risk \times e^{-3.0 \times \Delta t}$$
 - $Ratio_{limit} = 50.0$: The midpoint threshold where the base risk curve reaches exactly `0.5` (a 50x increase in transaction size).
 - $k_{amount} = 0.05$: The slope sensitivity adjusting how aggressively the risk scales.
 - $\Delta t$: The time difference in hours (`time_diff_hours`).
+
+### 4. Account Takeover (ATO) Detection via Behavioral Biometrics
+This feature targets Account Takeover (ATO) scenarios where an unauthorized attacker gains access to a legitimate user's account. Attackers typically show sudden behavioral shifts—such as failing credentials multiple times, switching devices, changing authentication methods, or transacting from unusual networks and distances.
+
+#### Key Implementation Details:
+- **Baseline User Profiling:** The pipeline creates a personalized profile for each user using historical data:
+  - `usual_device`: The user's most frequently used device type (mode).
+  - `usual_auth`: The user's most frequently used authentication method (mode).
+  - `avg_distance`: The user's historical average transaction distance (mean).
+- **The Suspicion Trigger:** The scoring logic is strictly conditional. It only triggers if a user has **more than 3 failed transactions within the last 7 days** (`Failed_Transaction_Count_7d > 3`), filtering out ordinary, low-risk user errors.
+- **Multi-Factor Heuristic Risk Scoring:** Once triggered, risk increments are systematically compounded based on the following indicators:
+  - **Indicator A (Authentication Change):** Current authentication method differs from `usual_auth` $\rightarrow$ **+0.20 Risk**
+  - **Indicator B (Device Switch):** Current device type differs from `usual_device` $\rightarrow$ **+0.20 Risk**
+  - **Indicator C (Network & Location Anomaly):** Evaluates spatial and network shifts based on IP flagging and distance explosion:
+    - An anomaly is flagged if `IP_Address_Flag == 1` or if the current transaction distance is **3 times larger** than the user's `avg_distance`.
+    - **Single Anomaly** (IP *or* Distance): $\rightarrow$ **+0.20 Risk**
+    - **Compound Anomaly** (IP *and* Distance): $\rightarrow$ **+0.50 Risk** (Highly critical indicator of geo-spoofing or proxy usage).
