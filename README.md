@@ -47,7 +47,7 @@ $$Risk\ Score = 1 - e^{-0.5 \times z}$$
 - $\sigma$: The user's standard deviation of daily transaction counts (`std_daily_count`), safely adjusted to prevent division by zero.
 
 ### 3. Small-to-Large Transaction Blast (Card Testing Detection)
-This feature captures a highly suspicious fraud pattern known as "Card Testing" or "Credit Blasting." Fraudsters often initiate a low-suspicion transaction to verify if a stolen card is active. Once confirmed, they immediately execute a massive transaction to drain the card's limit before it gets blocked.
+This feature captures a common fraud pattern known as "Card Testing" or "Credit Blasting." Fraudsters often initiate a low-value transaction to verify if a stolen card is active. Once confirmed, they immediately execute a massive transaction to drain the card's limit before it gets blocked.
 
 #### Key Implementation Details:
 - **Amount Explosion Ratio:** Tracks the multiplier gap between the current transaction amount and the immediately preceding one. The pipeline filters out micro-fluctuations and only triggers if the current amount is **at least 10 times larger** ($Ratio \ge 10.0$) than the previous one.
@@ -55,7 +55,7 @@ This feature captures a highly suspicious fraud pattern known as "Card Testing" 
 - **Exponential Time Decay:** Incorporates a time-decay factor. The shorter the time gap between the small test and the large blast, the more urgent and severe the risk factor becomes.
 - **Contextual Category Multiplier:** If the targeted high-amount transaction occurs in high-liquidation sectors like **Electronics** or **Travel**, the final risk increment receives a **30% compounding multiplier ($\times 1.3$)**, capped at a maximum value of `1.0`.
 
-#### Mathematical Formula & Mapping:
+#### Mathematical Formula:
 If $Ratio \ge 10.0$ within 1 hour, the base risk score is mapped via a Sigmoid function and then decayed by time:
 
 $$Base\ Risk = \frac{1}{1 + e^{-k_{amount}(Ratio - Ratio_{limit})}}$$
