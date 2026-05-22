@@ -60,8 +60,9 @@ First, the pipeline calculates the scale of the price gap ($Ratio$) between the 
 
 $$Ratio = \frac{Amount_{current}}{Amount_{prev}}$$
 
-- $A_{current}$: Current transaction amount (`Transaction_Amount`)
-- $A_{prev}$: Previous transaction amount (`prev_amount`)
+- $Amount_{current}$: Current transaction amount (`Transaction_Amount`)
+- $Amount_{prev}$: Previous transaction amount (`prev_amount`)
+
 If $Ratio \ge 10.0$ within 1 hour, the base risk score is mapped via a Sigmoid function and then decayed by time:
 
 $$Base\ Risk = \frac{1}{1 + e^{-k_{amount}(Ratio - Ratio_{limit})}}$$
