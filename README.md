@@ -1,6 +1,6 @@
 # Sherlock in My Wallet: Fraud Detection System Based on Customer Behavior
 
-A Python-based data pipeline optimized for analyzing customer behavioral patterns to detect fraudulent transactions, using a dataset sourced from [Kaggle] (https://www.kaggle.com/datasets/samayashar/fraud-detection-transactions-dataset).
+A Python-based data pipeline optimized for analyzing customer behavioral patterns to detect fraudulent transactions, using a dataset sourced from [Kaggle](https://www.kaggle.com/datasets/samayashar/fraud-detection-transactions-dataset).
 
 ## 📌 Project Overview
 - **Objective:** Evaluate and analyze a custom fraud detection logic against real-world transaction data.
