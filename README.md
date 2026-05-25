@@ -68,7 +68,6 @@ If $Ratio \ge 10.0$ within 1 hour, the base risk score is mapped via a Sigmoid f
 $$Base\ Risk = \frac{1}{1 + e^{-k_{amount}(Ratio - Ratio_{limit})}}$$
 $$Risk\ Score_{final} = Base\ Risk \times e^{-3.0 \times \Delta t}$$
 
-- $Ratio$: The scale of the price gap ($\text{`Transaction Amount`} / \text{`prev amount`}$).
 - $Ratio_{limit} = 50.0$: The midpoint threshold where the base risk curve reaches exactly `0.5` (a 50x increase in transaction size).
 - $k_{amount} = 0.05$: The slope sensitivity adjusting how aggressively the risk scales.
 - $\Delta t$: The time difference in hours (`time_diff_hours`).
